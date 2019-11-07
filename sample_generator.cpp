@@ -10,6 +10,10 @@
 #include <iostream>
 #include <vector>
 
+// -- Constants ----------------------------------------------------------------
+
+// Number of samples to be calculated.
+constexpr uint16_t sample_count = 360;
 // Number of sign bits in our Q-format.
 constexpr uint8_t sign_bit = 1;
 // Number of integer bits in our Q-format.
@@ -17,14 +21,18 @@ constexpr uint8_t integer_bits = 0;
 // Number of fractional bits in our Q-format.
 constexpr uint8_t fractional_bits = 11;
 // Maximum amplitude value.
-constexpr auto max_value = 1 << fractional_bits;
+constexpr uint16_t max_value = 0b111111111111;
 // Half amplitude value
-constexpr auto mid = max_value >> 2;
+constexpr uint16_t mid = max_value >> 1;
+
+// -- Type aliases -------------------------------------------------------------
 
 // type alias for fixed_point type.
 using fixed_point = uint16_t;
 // Binary printable type alias.
-using binary_string = std::bitset<sign_bit + integer_bits + fractional_bits>;
+using binary_type = std::bitset<sign_bit + integer_bits + fractional_bits>;
+
+// -- Helper functions ---------------------------------------------------------
 
 /// Converts a doubleing_point number to a fixed_point type.
 fixed_point to_fixed(double input) {
@@ -39,8 +47,8 @@ double to_double(fixed_point input) {
 
 /// Returns a bitset containing 'x' which can be printed in binary format.
 template <class T>
-binary_string to_binary(T x) {
-  return binary_string(x);
+binary_type to_binary(T x) {
+  return binary_type(x);
 }
 
 /// Prints any std::vector with newlines and fancy formatting.
@@ -63,9 +71,9 @@ int main() {
   std::vector<fixed_point> sawToothSamples;
 
   // sinus calculation
-  const auto sinStep = (2 * M_PI) / 360;
+  const auto sinStep = (2 * M_PI) / sample_count;
   auto rad = 0.0;
-  for (int i = 0; i < 360; ++i) {
+  for (int i = 0; i < sample_count; ++i) {
     auto sinSample = std::floor((std::sin(rad) * mid));
     auto scaled_sin_sample = sinSample / mid;
     sinusSamples.push_back(to_fixed(scaled_sin_sample));
@@ -73,11 +81,12 @@ int main() {
   }
 
   // sawtooth calculation
-  const double sawStep = max_value / 360;
-  double sawSample = 0.0;
-  for (int i = 0; i < 360; ++i) {
-    sawToothSamples.push_back(to_fixed(sawSample));
-    sawSample += sawStep / max_value;
+  const double saw_step = max_value / sample_count;
+  auto saw_sample = 0.0;
+  for (int i = 0; i < sample_count; ++i) {
+    double scaled_saw_sample = (saw_sample - mid) / max_value;
+    sawToothSamples.push_back(to_fixed(scaled_saw_sample));
+    saw_sample += saw_step;
   }
 
   // Print data

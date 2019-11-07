@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.13)
-project(sinus_kurve)
+project(sample_generator)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(sinus_kurve main.cpp)
+add_executable(sample_generator sample_generator.cpp)
