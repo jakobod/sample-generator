@@ -23,6 +23,7 @@ cd build
 cmake ..
 make
 ```
+Or simply call the `build.sh` script. It does all that for you.
 
 3. Run the program:
 ```
@@ -31,3 +32,6 @@ make
 
 ### Windows instructions
 no idea. I think you need to import this project somehow and load the CMakeLists.txt into your IDE. If you know more than me, please dont hesitate and tell me :+1:
+
+# Feedback
+If you happen to find a bug or anything that you think is off with this program, feel free to open an issue/pullrequest.
