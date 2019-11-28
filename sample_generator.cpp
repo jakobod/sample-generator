@@ -67,17 +67,17 @@ void print_vector(const std::vector<Type>& values, const int line_width = 15) {
 }
 
 int main() {
-  std::vector<fixed_point> sinusSamples;
+  std::vector<int16_t> sinusSamples;
   std::vector<fixed_point> sawToothSamples;
 
   // sinus calculation
-  const auto sinStep = (2 * M_PI) / sample_count;
-  auto rad = 0.0;
+  auto rad = (2 * M_PI) / 360;
   for (int i = 0; i < sample_count; ++i) {
-    auto sinSample = std::floor((std::sin(rad) * mid));
-    auto scaled_sin_sample = sinSample / mid;
-    sinusSamples.push_back(to_fixed(scaled_sin_sample));
-    rad += sinStep;
+    double sinSample = (std::sin(i * rad));
+    auto x = static_cast<uint64_t>((sinSample * (32768)));
+    if (x == 32768)
+      x -= 1;
+    sinusSamples.push_back(x);
   }
 
   // sawtooth calculation
