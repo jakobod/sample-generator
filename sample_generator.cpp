@@ -37,7 +37,7 @@ template <class Type>
 void print_vector(const std::vector<Type>& values, const int line_width = 15) {
   int count = 0;
   for (const auto val : values) {
-    std::cout << std::setw(5) << val << ", ";
+    std::cout << std::setw(6) << val << ", ";
     // add newline every `line_width` prints.
     if (++count >= line_width) {
       count = 0;
