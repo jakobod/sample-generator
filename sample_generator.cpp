@@ -14,12 +14,6 @@
 
 // Number of samples to be calculated.
 constexpr uint16_t sample_count = 360;
-// Number of sign bits in our Q-format.
-constexpr uint8_t sign_bit = 1;
-// Number of integer bits in our Q-format.
-constexpr uint8_t integer_bits = 0;
-// Number of fractional bits in our Q-format.
-constexpr uint8_t fractional_bits = 11;
 // Maximum amplitude value.
 constexpr uint16_t max_value = 0b111111111111;
 // Half amplitude value
@@ -27,23 +21,10 @@ constexpr uint16_t mid = max_value >> 1;
 
 // -- Type aliases -------------------------------------------------------------
 
-// type alias for fixed_point type.
-using fixed_point = uint16_t;
 // Binary printable type alias.
-using binary_type = std::bitset<sign_bit + integer_bits + fractional_bits>;
+using binary_type = std::bitset<8 * sizeof(uint16_t)>;
 
 // -- Helper functions ---------------------------------------------------------
-
-/// Converts a doubleing_point number to a fixed_point type.
-fixed_point to_fixed(double input) {
-  return static_cast<fixed_point>(round(input * (1 << fractional_bits)));
-}
-
-/// Converts a fixed_point number to doubleing_point type.
-double to_double(fixed_point input) {
-  return (static_cast<double>(input)
-          / static_cast<double>(1u << fractional_bits));
-}
 
 /// Returns a bitset containing 'x' which can be printed in binary format.
 template <class T>
@@ -68,13 +49,14 @@ void print_vector(const std::vector<Type>& values, const int line_width = 15) {
 
 int main() {
   std::vector<int16_t> sinusSamples;
-  std::vector<fixed_point> sawToothSamples;
+  std::vector<int16_t> sawToothSamples;
 
   // sinus calculation
   auto rad = (2 * M_PI) / 360;
   for (int i = 0; i < sample_count; ++i) {
     double sinSample = (std::sin(i * rad));
     auto x = static_cast<uint64_t>((sinSample * (32768)));
+    // catch edgecase
     if (x == 32768)
       x -= 1;
     sinusSamples.push_back(x);
@@ -82,11 +64,11 @@ int main() {
 
   // sawtooth calculation
   const double saw_step = max_value / sample_count;
-  auto saw_sample = 0.0;
   for (int i = 0; i < sample_count; ++i) {
-    double scaled_saw_sample = (saw_sample - mid) / max_value;
-    sawToothSamples.push_back(to_fixed(scaled_saw_sample));
-    saw_sample += saw_step;
+    auto sample = saw_step * i;
+    double scaled_saw_sample = (sample - mid) / max_value;
+    auto x = static_cast<uint64_t>((scaled_saw_sample * (32768)));
+    sawToothSamples.push_back(x);
   }
 
   // Print data
